@@ -1,5 +1,7 @@
 import os
 
+import requests
+
 from flask import (
     Flask,
     render_template,
@@ -49,11 +51,39 @@ def index():
     total_users = User.query.count()
     total_anime = Anime.query.count()
 
+    try:
+        response = requests.get("https://api.jikan.moe/v4/top/anime", timeout=10)
+        response.raise_for_status()
+        top_anime = response.json().get("data", [])[:6]
+    except requests.RequestException:
+        top_anime = []
+
     return render_template(
         "index.html",
         total_users=total_users,
-        total_anime=total_anime
+        total_anime=total_anime,
+        top_anime=top_anime
     )
+
+
+@app.route("/api/jikan")
+def jikan_api():
+    query = request.args.get("q", "")
+    try:
+        if query:
+            response = requests.get(
+                "https://api.jikan.moe/v4/anime",
+                params={"q": query},
+                timeout=10
+            )
+        else:
+            response = requests.get("https://api.jikan.moe/v4/top/anime", timeout=10)
+
+        response.raise_for_status()
+        data = response.json().get("data", [])
+        return {"success": True, "data": data}
+    except requests.RequestException as exc:
+        return {"success": False, "error": str(exc)}, 500
 
 #Register
 
