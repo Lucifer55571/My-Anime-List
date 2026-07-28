@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search Anime</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        form { margin-bottom: 1.5rem; }
+        input { padding: 0.6rem; width: 280px; }
+        button { padding: 0.6rem 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .card { border: 1px solid #ddd; padding: 1rem; border-radius: 8px; }
+        img { width: 100%; height: auto; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <h1>Cari Anime</h1>
+    <form method="get" action="{{ url_for('search_anime') }}">
+        <input type="text" name="q" value="{{ query }}" placeholder="Masukkan nama anime">
+        <button type="submit">Cari</button>
+    </form>
+
+    {% if query %}
+        <p>Hasil pencarian untuk: <strong>{{ query }}</strong></p>
+    {% endif %}
+
+    {% if anime_results %}
+        <div class="grid">
+            {% for anime in anime_results %}
+                <div class="card">
+                    {% if anime.images.jpg.image_url %}
+                        <img src="{{ anime.images.jpg.image_url }}" alt="{{ anime.title }}">
+                    {% endif %}
+                    <h3>{{ anime.title }}</h3>
+                    <p>Score: {{ anime.score or 'Belum ada' }}</p>
+                    <p>Season: {{ anime.season or '-' }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% elif query %}
+        <p>Tidak ada hasil.</p>
+    {% endif %}
+</body>
+</html>

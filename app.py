@@ -85,6 +85,30 @@ def jikan_api():
     except requests.RequestException as exc:
         return {"success": False, "error": str(exc)}, 500
 
+
+@app.route("/search")
+def search_anime():
+    query = request.args.get("q", "").strip()
+    anime_results = []
+
+    if query:
+        try:
+            response = requests.get(
+                "https://api.jikan.moe/v4/anime",
+                params={"q": query},
+                timeout=10
+            )
+            response.raise_for_status()
+            anime_results = response.json().get("data", [])[:12]
+        except requests.RequestException:
+            anime_results = []
+
+    return render_template(
+        "search.html",
+        query=query,
+        anime_results=anime_results
+    )
+
 #Register
 
 @app.route("/register", methods=["GET", "POST"])
