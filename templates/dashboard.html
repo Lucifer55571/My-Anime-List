@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - MyAnimeTracker{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">
+    <i class="bi bi-speedometer2"></i> Dashboard {{ current_user.username }}
+</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card p-3 text-center">
+            <i class="bi bi-collection text-dark" style="font-size: 1.6rem;"></i>
+            <h4 class="fw-bold mt-2 mb-0">{{ total }}</h4>
+            <small class="text-muted">Total Anime</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card p-3 text-center">
+            <i class="bi bi-play-circle text-primary" style="font-size: 1.6rem;"></i>
+            <h4 class="fw-bold mt-2 mb-0">{{ watching }}</h4>
+            <small class="text-muted">Watching</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card p-3 text-center">
+            <i class="bi bi-check-circle text-success" style="font-size: 1.6rem;"></i>
+            <h4 class="fw-bold mt-2 mb-0">{{ completed }}</h4>
+            <small class="text-muted">Completed</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card p-3 text-center">
+            <i class="bi bi-pause-circle text-warning" style="font-size: 1.6rem;"></i>
+            <h4 class="fw-bold mt-2 mb-0">{{ on_hold }}</h4>
+            <small class="text-muted">On Hold</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card p-3 text-center">
+            <i class="bi bi-x-circle text-danger" style="font-size: 1.6rem;"></i>
+            <h4 class="fw-bold mt-2 mb-0">{{ dropped }}</h4>
+            <small class="text-muted">Dropped</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card p-3 text-center">
+            <i class="bi bi-bookmark text-secondary" style="font-size: 1.6rem;"></i>
+            <h4 class="fw-bold mt-2 mb-0">{{ plan }}</h4>
+            <small class="text-muted">Plan to Watch</small>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex gap-2">
+    <a href="{{ url_for('anime_list') }}" class="btn btn-outline-primary">
+        <i class="bi bi-collection-play"></i> Lihat Semua Anime
+    </a>
+    <a href="{{ url_for('add_anime') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Tambah Anime Baru
+    </a>
+</div>
+{% endblock %}

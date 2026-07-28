@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ anime.title }} - MyAnimeTracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card p-4">
+            <h3 class="fw-bold mb-4">
+                <i class="bi bi-pencil"></i> Edit Anime
+            </h3>
+
+            <form method="POST" action="{{ url_for('edit_anime', id=anime.id) }}">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label for="title" class="form-label">Judul Anime</label>
+                        <input type="text" class="form-control" id="title" name="title"
+                               value="{{ anime.title }}" required autofocus>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="release_year" class="form-label">Tahun Rilis</label>
+                        <input type="number" class="form-control" id="release_year" name="release_year"
+                               min="1960" max="2100" value="{{ anime.release_year }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="genre" class="form-label">Genre</label>
+                        <input type="text" class="form-control" id="genre" name="genre"
+                               value="{{ anime.genre }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="studio" class="form-label">Studio</label>
+                        <input type="text" class="form-control" id="studio" name="studio"
+                               value="{{ anime.studio }}" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="episodes" class="form-label">Jumlah Episode</label>
+                        <input type="number" class="form-control" id="episodes" name="episodes"
+                               min="0" value="{{ anime.episodes }}" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status" required>
+                            {% for opt in ["Watching", "Completed", "On Hold", "Dropped", "Plan to Watch"] %}
+                                <option value="{{ opt }}" {% if anime.status == opt %}selected{% endif %}>
+                                    {{ opt }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="score" class="form-label">Skor (0-10)</label>
+                        <input type="number" class="form-control" id="score" name="score"
+                               min="0" max="10" step="0.1" value="{{ anime.score }}" required>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="cover_url" class="form-label">URL Gambar Cover</label>
+                        <input type="url" class="form-control" id="cover_url" name="cover_url"
+                               value="{{ anime.cover_url }}" placeholder="https://...">
+                    </div>
+
+                    <div class="col-12">
+                        <label for="synopsis" class="form-label">Sinopsis</label>
+                        <textarea class="form-control" id="synopsis" name="synopsis" rows="4" required>{{ anime.synopsis }}</textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Simpan Perubahan
+                    </button>
+                    <a href="{{ url_for('detail', id=anime.id) }}" class="btn btn-outline-secondary">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

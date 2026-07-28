@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Anime - MyAnimeTracker{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <h2 class="fw-bold mb-0">
+        <i class="bi bi-collection-play"></i> Daftar Anime
+    </h2>
+    <a href="{{ url_for('add_anime') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Tambah Anime
+    </a>
+</div>
+
+<form method="GET" action="{{ url_for('anime_list') }}" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Cari judul anime..."
+               value="{{ request.args.get('search', '') }}">
+        <button type="submit" class="btn btn-outline-secondary">
+            <i class="bi bi-search"></i> Cari
+        </button>
+        {% if request.args.get('search') %}
+            <a href="{{ url_for('anime_list') }}" class="btn btn-outline-danger">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        {% endif %}
+    </div>
+</form>
+
+{% if anime_list %}
+<div class="row g-4">
+    {% for anime in anime_list %}
+    <div class="col-md-6 col-lg-4 col-xl-3">
+        <div class="card h-100">
+            {% if anime.cover_url %}
+                <img src="{{ anime.cover_url }}" class="card-img-top" alt="{{ anime.title }}"
+                     style="height: 220px; object-fit: cover; border-radius: 14px 14px 0 0;">
+            {% else %}
+                <div class="d-flex align-items-center justify-content-center bg-secondary bg-opacity-10"
+                     style="height: 220px; border-radius: 14px 14px 0 0;">
+                    <i class="bi bi-image text-secondary" style="font-size: 2.5rem;"></i>
+                </div>
+            {% endif %}
+
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title mb-1">{{ anime.title }}</h5>
+                <p class="text-muted small mb-2">{{ anime.genre }} &middot; {{ anime.release_year }}</p>
+
+                <span class="badge status-badge mb-2
+                    {% if anime.status == 'Watching' %} bg-primary
+                    {% elif anime.status == 'Completed' %} bg-success
+                    {% elif anime.status == 'On Hold' %} bg-warning text-dark
+                    {% elif anime.status == 'Dropped' %} bg-danger
+                    {% else %} bg-secondary
+                    {% endif %}"
+                    style="width: fit-content;">
+                    {{ anime.status }}
+                </span>
+
+                <p class="mb-3">
+                    <i class="bi bi-star-fill text-warning"></i> {{ anime.score }}/10
+                </p>
+
+                <div class="mt-auto d-flex gap-2">
+                    <a href="{{ url_for('detail', id=anime.id) }}" class="btn btn-sm btn-outline-primary flex-fill">
+                        <i class="bi bi-eye"></i> Detail
+                    </a>
+                    <a href="{{ url_for('edit_anime', id=anime.id) }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{{ url_for('delete_anime', id=anime.id) }}" class="btn btn-sm btn-outline-danger"
+                       onclick="return confirm('Yakin ingin menghapus anime ini?');">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card p-5 text-center">
+    <i class="bi bi-inbox text-secondary" style="font-size: 2.5rem;"></i>
+    <p class="text-muted mt-3 mb-0">Belum ada anime yang cocok. Coba tambahkan anime baru.</p>
+</div>
+{% endif %}
+{% endblock %}
