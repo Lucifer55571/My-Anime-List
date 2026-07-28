@@ -23,7 +23,6 @@ from werkzeug.security import (
 from config import Config
 from models import db, User, Anime
 
-
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -36,7 +35,6 @@ login_manager.login_view = "login"
 login_manager.login_message = "Silakan login terlebih dahulu."
 login_manager.login_message_category = "warning"
 login_manager.init_app(app)
-
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -103,7 +101,6 @@ def register():
 
     return render_template("register.html")
 
-
 #Login
 
 @app.route("/login", methods=["GET", "POST"])
@@ -130,7 +127,6 @@ def login():
         flash("Username atau password salah.", "danger")
 
     return render_template("login.html")
-
 
 #Logout
 
@@ -331,7 +327,6 @@ def profile():
 def page_not_found(error):
     return render_template("404.html"), 404
 
-
 @app.errorhandler(500)
 def internal_server(error):
     return render_template("500.html"), 500
@@ -340,7 +335,6 @@ def internal_server(error):
 
 with app.app_context():
     db.create_all()
-
 
 if __name__ == "__main__":
     app.run(debug=True)
