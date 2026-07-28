@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Beranda - MyAnimeTracker{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-white rounded-4 shadow-sm text-center">
+    <i class="bi bi-film" style="font-size: 3rem; color: #6f42c1;"></i>
+    <h1 class="fw-bold mt-3">Selamat Datang di MyAnimeTracker</h1>
+    <p class="lead text-muted">
+        Catat, kelola, dan pantau progres anime favoritmu dengan mudah.
+    </p>
+
+    {% if not current_user.is_authenticated %}
+        <div class="mt-4">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-2">
+                <i class="bi bi-person-plus"></i> Daftar Sekarang
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+        </div>
+    {% else %}
+        <div class="mt-4">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-speedometer2"></i> Buka Dashboard
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="row text-center g-4">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <i class="bi bi-people-fill text-primary" style="font-size: 2rem;"></i>
+            <h2 class="fw-bold mt-2">{{ total_users }}</h2>
+            <p class="text-muted mb-0">Pengguna Terdaftar</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4">
+            <i class="bi bi-collection-play-fill text-success" style="font-size: 2rem;"></i>
+            <h2 class="fw-bold mt-2">{{ total_anime }}</h2>
+            <p class="text-muted mb-0">Anime Tercatat</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
