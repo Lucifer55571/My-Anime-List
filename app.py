@@ -336,7 +336,10 @@ def internal_server(error):
 #Main
 
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except Exception as exc:
+        print(f"Database initialization warning: {exc}")
 
 
 if __name__ == "__main__":
