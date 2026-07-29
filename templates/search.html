@@ -24,6 +24,10 @@
     <p class="text-muted mb-3">Hasil pencarian untuk: <strong>{{ query }}</strong></p>
 {% endif %}
 
+{% if search_error and not anime_results %}
+    <div class="alert alert-warning">{{ search_error }}</div>
+{% endif %}
+
 {% if anime_results %}
     <div class="row g-4">
         {% for anime in anime_results %}

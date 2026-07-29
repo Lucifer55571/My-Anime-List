@@ -44,6 +44,61 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+def fetch_jikan_anime(query="", limit=12):
+    headers = {"User-Agent": "Mozilla/5.0"}
+    search_url = "https://api.jikan.moe/v4/anime"
+    top_url = "https://api.jikan.moe/v4/top/anime"
+
+    try:
+        if query:
+            response = requests.get(
+                search_url,
+                params={"q": query, "limit": limit},
+                timeout=15,
+                headers=headers
+            )
+            response.raise_for_status()
+            data = response.json().get("data", [])
+            if data:
+                return data[:limit], None
+
+        response = requests.get(
+            top_url,
+            params={"limit": limit},
+            timeout=15,
+            headers=headers
+        )
+        response.raise_for_status()
+        data = response.json().get("data", [])
+
+        if query:
+            filtered = [
+                anime for anime in data
+                if query.lower() in str(anime.get("title", "")).lower()
+            ]
+            if filtered:
+                return filtered[:limit], None
+
+        return data[:limit], None
+
+    except requests.RequestException as exc:
+        try:
+            response = requests.get(
+                top_url,
+                params={"limit": limit},
+                timeout=15,
+                headers=headers
+            )
+            response.raise_for_status()
+            data = response.json().get("data", [])
+            return data[:limit], str(exc)
+        except requests.RequestException as fallback_exc:
+            return [], (
+                "API Jikan sedang tidak merespons saat ini. "
+                f"Coba lagi sebentar lagi. ({fallback_exc})"
+            )
+
+
 #Home Page
 
 @app.route("/")
@@ -69,44 +124,24 @@ def index():
 @app.route("/api/jikan")
 def jikan_api():
     query = request.args.get("q", "")
-    try:
-        if query:
-            response = requests.get(
-                "https://api.jikan.moe/v4/anime",
-                params={"q": query},
-                timeout=10
-            )
-        else:
-            response = requests.get("https://api.jikan.moe/v4/top/anime", timeout=10)
+    data, error = fetch_jikan_anime(query=query, limit=12)
 
-        response.raise_for_status()
-        data = response.json().get("data", [])
-        return {"success": True, "data": data}
-    except requests.RequestException as exc:
-        return {"success": False, "error": str(exc)}, 500
+    if error and not data:
+        return {"success": False, "error": error}, 500
+
+    return {"success": True, "data": data}
 
 
 @app.route("/search")
 def search_anime():
     query = request.args.get("q", "").strip()
-    anime_results = []
-
-    if query:
-        try:
-            response = requests.get(
-                "https://api.jikan.moe/v4/anime",
-                params={"q": query},
-                timeout=10
-            )
-            response.raise_for_status()
-            anime_results = response.json().get("data", [])[:12]
-        except requests.RequestException:
-            anime_results = []
+    anime_results, search_error = fetch_jikan_anime(query=query, limit=12)
 
     return render_template(
         "search.html",
         query=query,
-        anime_results=anime_results
+        anime_results=anime_results,
+        search_error=search_error
     )
 
 #Register
