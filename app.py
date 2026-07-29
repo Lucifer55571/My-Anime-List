@@ -44,6 +44,55 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+def fetch_jikan_anime(query="", limit=12):
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json"
+    }
+    search_url = "https://api.jikan.moe/v4/anime"
+    top_url = "https://api.jikan.moe/v4/top/anime"
+
+    try:
+        if query:
+            response = requests.get(
+                search_url,
+                params={"q": query, "limit": limit},
+                timeout=20,
+                headers=headers
+            )
+            response.raise_for_status()
+            payload = response.json()
+            data = payload.get("data") or []
+            if data:
+                return data[:limit], None
+
+        response = requests.get(
+            top_url,
+            params={"limit": limit},
+            timeout=20,
+            headers=headers
+        )
+        response.raise_for_status()
+        payload = response.json()
+        data = payload.get("data") or []
+
+        if query:
+            filtered = [
+                anime for anime in data
+                if query.lower() in str(anime.get("title", "")).lower()
+            ]
+            if filtered:
+                return filtered[:limit], None
+
+        return data[:limit], None
+
+    except requests.RequestException as exc:
+        return [], (
+            "API Jikan sedang tidak merespons saat ini. "
+            f"Coba lagi sebentar lagi. ({exc})"
+        )
+
+
 #Home Page
 
 @app.route("/")
@@ -52,9 +101,15 @@ def index():
     total_anime = Anime.query.count()
 
     try:
-        response = requests.get("https://api.jikan.moe/v4/top/anime", timeout=10)
+        response = requests.get(
+            "https://api.jikan.moe/v4/top/anime",
+            params={"limit": 6},
+            timeout=20,
+            headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"}
+        )
         response.raise_for_status()
-        top_anime = response.json().get("data", [])[:6]
+        payload = response.json()
+        top_anime = payload.get("data", [])[:6]
     except requests.RequestException:
         top_anime = []
 
@@ -69,45 +124,90 @@ def index():
 @app.route("/api/jikan")
 def jikan_api():
     query = request.args.get("q", "")
-    try:
-        if query:
-            response = requests.get(
-                "https://api.jikan.moe/v4/anime",
-                params={"q": query},
-                timeout=10
-            )
-        else:
-            response = requests.get("https://api.jikan.moe/v4/top/anime", timeout=10)
+    data, error = fetch_jikan_anime(query=query, limit=12)
 
-        response.raise_for_status()
-        data = response.json().get("data", [])
-        return {"success": True, "data": data}
-    except requests.RequestException as exc:
-        return {"success": False, "error": str(exc)}, 500
+    if error and not data:
+        return {"success": False, "error": error}, 500
+
+    return {"success": True, "data": data}
 
 
 @app.route("/search")
 def search_anime():
     query = request.args.get("q", "").strip()
-    anime_results = []
+    anime_results, search_error = fetch_jikan_anime(query=query, limit=12)
 
-    if query:
-        try:
-            response = requests.get(
-                "https://api.jikan.moe/v4/anime",
-                params={"q": query},
-                timeout=10
-            )
-            response.raise_for_status()
-            anime_results = response.json().get("data", [])[:12]
-        except requests.RequestException:
-            anime_results = []
+    saved_titles = set()
+    if current_user.is_authenticated:
+        saved_titles = {
+            anime.title.lower()
+            for anime in Anime.query.filter_by(user_id=current_user.id).all()
+        }
 
     return render_template(
         "search.html",
         query=query,
-        anime_results=anime_results
+        anime_results=anime_results,
+        search_error=search_error,
+        saved_titles=saved_titles
     )
+
+
+@app.route("/search/add", methods=["POST"])
+@login_required
+def add_search_anime():
+    title = request.form.get("title", "").strip()
+    genre = request.form.get("genre", "").strip() or "Tidak diketahui"
+    studio = request.form.get("studio", "").strip() or "Tidak diketahui"
+    episodes = request.form.get("episodes")
+    status = request.form.get("status", "Plan to Watch").strip() or "Plan to Watch"
+    score = request.form.get("score")
+    release_year = request.form.get("release_year")
+    cover_url = request.form.get("cover_url", "").strip()
+    synopsis = request.form.get("synopsis", "").strip()
+
+    if not title:
+        flash("Judul anime tidak valid.", "danger")
+        return redirect(url_for("search_anime"))
+
+    existing = Anime.query.filter_by(user_id=current_user.id, title=title).first()
+    if existing:
+        flash("Anime ini sudah ada di daftar Anda.", "warning")
+        return redirect(url_for("anime_list"))
+
+    try:
+        episodes = int(episodes) if episodes not in (None, "") else 0
+    except ValueError:
+        episodes = 0
+
+    try:
+        score = float(score) if score not in (None, "") else 0.0
+    except ValueError:
+        score = 0.0
+
+    try:
+        release_year = int(release_year) if release_year not in (None, "") else 0
+    except ValueError:
+        release_year = 0
+
+    anime = Anime(
+        title=title,
+        genre=genre,
+        studio=studio,
+        episodes=episodes,
+        status=status,
+        score=score,
+        release_year=release_year,
+        cover_url=cover_url,
+        synopsis=synopsis,
+        user_id=current_user.id
+    )
+
+    db.session.add(anime)
+    db.session.commit()
+
+    flash("Anime berhasil ditambahkan ke daftar Anda.", "success")
+    return redirect(url_for("anime_list"))
 
 #Register
 

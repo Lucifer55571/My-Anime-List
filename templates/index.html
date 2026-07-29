@@ -10,6 +10,17 @@
         Catat, kelola, dan pantau progres anime favoritmu dengan mudah.
     </p>
 
+    <form method="get" action="{{ url_for('search_anime') }}" class="row g-2 justify-content-center mt-4">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control form-control-lg" placeholder="Cari anime favoritmu..." value="{{ request.args.get('q', '') }}" required>
+                <button class="btn btn-primary btn-lg" type="submit">
+                    <i class="bi bi-search"></i> Cari
+                </button>
+            </div>
+        </div>
+    </form>
+
     {% if not current_user.is_authenticated %}
         <div class="mt-4">
             <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-2">
@@ -22,7 +33,7 @@
     {% else %}
         <div class="mt-4">
             <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
-                <i class="bi bi-speedometer2"></i> Buka Dashboard
+                <i class="bi bi-speedometer2"></i> Open Catalogue
             </a>
         </div>
     {% endif %}
