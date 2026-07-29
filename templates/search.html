@@ -31,19 +31,48 @@
 {% if anime_results %}
     <div class="row g-4">
         {% for anime in anime_results %}
+            {% set title = anime.title if anime.title else 'Judul tidak tersedia' %}
+            {% set image_url = anime.images.jpg.image_url if anime.images and anime.images.jpg and anime.images.jpg.image_url else '' %}
+            {% set score = anime.score if anime.score is not none and anime.score != 0 else 'Belum ada' %}
+            {% set season = anime.season if anime.season else '-' %}
+            {% set year = anime.year if anime.year else '-' %}
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 p-3">
-                    {% if anime.images and anime.images.jpg and anime.images.jpg.image_url %}
-                        <img src="{{ anime.images.jpg.image_url }}" alt="{{ anime.title }}" class="card-img-top rounded-3" style="height: 280px; object-fit: cover;">
+                    {% if image_url %}
+                        <img src="{{ image_url }}" alt="{{ title }}" class="card-img-top rounded-3" style="height: 280px; object-fit: cover;">
                     {% else %}
                         <div class="d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 rounded-3" style="height: 280px;">
                             <i class="bi bi-image text-secondary" style="font-size: 2rem;"></i>
                         </div>
                     {% endif %}
                     <div class="card-body px-0 pb-0">
-                        <h5 class="fw-bold mt-3 mb-2">{{ anime.title }}</h5>
-                        <p class="mb-1"><strong>Score:</strong> {{ anime.score or 'Belum ada' }}</p>
-                        <p class="mb-0"><strong>Season:</strong> {{ anime.season or '-' }}</p>
+                        <h5 class="fw-bold mt-3 mb-2">{{ title }}</h5>
+                        <p class="mb-1"><strong>Score:</strong> {{ score }}</p>
+                        <p class="mb-1"><strong>Season:</strong> {{ season }}</p>
+                        <p class="mb-0"><strong>Tahun:</strong> {{ year }}</p>
+                        {% if current_user.is_authenticated %}
+                            {% set title_lower = title|lower %}
+                            {% if title_lower in saved_titles %}
+                                <button class="btn btn-success btn-sm w-100 mt-3" disabled>
+                                    <i class="bi bi-check-circle"></i> Sudah ditambahkan
+                                </button>
+                            {% else %}
+                                <form method="post" action="{{ url_for('add_search_anime') }}" class="mt-3">
+                                    <input type="hidden" name="title" value="{{ title }}">
+                                    <input type="hidden" name="genre" value="{{ anime.genres[0].name if anime.genres and anime.genres[0].name else '' }}">
+                                    <input type="hidden" name="studio" value="{{ anime.studios[0].name if anime.studios and anime.studios[0].name else '' }}">
+                                    <input type="hidden" name="episodes" value="{{ anime.episodes if anime.episodes is not none else '' }}">
+                                    <input type="hidden" name="status" value="Plan to Watch">
+                                    <input type="hidden" name="score" value="{{ anime.score if anime.score is not none else '' }}">
+                                    <input type="hidden" name="release_year" value="{{ anime.year if anime.year is not none else '' }}">
+                                    <input type="hidden" name="cover_url" value="{{ image_url }}">
+                                    <input type="hidden" name="synopsis" value="{{ anime.synopsis if anime.synopsis else '' }}">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm w-100">
+                                        <i class="bi bi-plus-circle"></i> Tambah ke Daftar
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
