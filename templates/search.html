@@ -1,51 +1,45 @@
-{% extends "base.html" %}
-
-{% block title %}Cari Anime - YourAnimeJourney{% endblock %}
-
-{% block content %}
-<div class="card p-4 mb-4">
-    <h2 class="fw-bold mb-3">
-        <i class="bi bi-search"></i> Cari Anime
-    </h2>
-
-    <form method="get" action="{{ url_for('search_anime') }}" class="row g-2">
-        <div class="col-12 col-md-8">
-            <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="Masukkan nama anime" required>
-        </div>
-        <div class="col-12 col-md-4">
-            <button type="submit" class="btn btn-primary w-100">
-                <i class="bi bi-search"></i> Cari
-            </button>
-        </div>
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search Anime</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        form { margin-bottom: 1.5rem; }
+        input { padding: 0.6rem; width: 280px; }
+        button { padding: 0.6rem 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .card { border: 1px solid #ddd; padding: 1rem; border-radius: 8px; }
+        img { width: 100%; height: auto; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <h1>Cari Anime</h1>
+    <form method="get" action="{{ url_for('search_anime') }}">
+        <input type="text" name="q" value="{{ query }}" placeholder="Masukkan nama anime">
+        <button type="submit">Cari</button>
     </form>
-</div>
 
-{% if query %}
-    <p class="text-muted mb-3">Hasil pencarian untuk: <strong>{{ query }}</strong></p>
-{% endif %}
+    {% if query %}
+        <p>Hasil pencarian untuk: <strong>{{ query }}</strong></p>
+    {% endif %}
 
-{% if anime_results %}
-    <div class="row g-4">
-        {% for anime in anime_results %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-3">
-                    {% if anime.images and anime.images.jpg and anime.images.jpg.image_url %}
-                        <img src="{{ anime.images.jpg.image_url }}" alt="{{ anime.title }}" class="card-img-top rounded-3" style="height: 280px; object-fit: cover;">
-                    {% else %}
-                        <div class="d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 rounded-3" style="height: 280px;">
-                            <i class="bi bi-image text-secondary" style="font-size: 2rem;"></i>
-                        </div>
+    {% if anime_results %}
+        <div class="grid">
+            {% for anime in anime_results %}
+                <div class="card">
+                    {% if anime.images.jpg.image_url %}
+                        <img src="{{ anime.images.jpg.image_url }}" alt="{{ anime.title }}">
                     {% endif %}
-                    <div class="card-body px-0 pb-0">
-                        <h5 class="fw-bold mt-3 mb-2">{{ anime.title }}</h5>
-                        <p class="mb-1"><strong>Score:</strong> {{ anime.score or 'Belum ada' }}</p>
-                        <p class="mb-0"><strong>Season:</strong> {{ anime.season or '-' }}</p>
-                    </div>
+                    <h3>{{ anime.title }}</h3>
+                    <p>Score: {{ anime.score or 'Belum ada' }}</p>
+                    <p>Season: {{ anime.season or '-' }}</p>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
-{% elif query %}
-    <div class="alert alert-warning">Tidak ada hasil anime yang cocok.</div>
-{% endif %}
-{% endblock %}
+            {% endfor %}
+        </div>
+    {% elif query %}
+        <p>Tidak ada hasil.</p>
+    {% endif %}
+</body>
+</html>
