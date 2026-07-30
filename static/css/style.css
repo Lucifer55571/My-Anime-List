@@ -10,6 +10,12 @@ body{
     font-family:'Poppins',sans-serif;
     background:#f5f7fb;
     color:#212529;
+    background-image: url('hero-bg.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 100vh;
 }
 
 a{
