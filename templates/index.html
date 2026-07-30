@@ -3,6 +3,17 @@
 {% block title %}Beranda - YourAnimeJourney{% endblock %}
 
 {% block content %}
+<style>
+    body {
+        background-image: url('static/images/main_wall.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        height: 100vh;
+    }
+</style>
+
 <div class="p-5 mb-4 bg-white rounded-4 shadow-sm text-center">
     <img src="{{ url_for('static', filename='images/reze_chibi.svg') }}" alt="YourAnimeJourney logo" style="height: 72px; width: auto;">
     <h1 class="fw-bold mt-3">YourAnimeJourney</h1>
