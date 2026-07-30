@@ -10,7 +10,7 @@ body{
     font-family:'Poppins',sans-serif;
     background:#f5f7fb;
     color:#212529;
-    background-image: url('hero-bg.jpeg');
+    background-image: url('static/images/reze_wall.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
